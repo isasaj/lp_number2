@@ -92,6 +92,7 @@ void add_word(str_pars* struct_el, char* temp, int len) {
 
 int parse(char* string, str_pars* str_parsing, int len) {
     memset(str_parsing, 0, sizeof(str_pars));
+    str_parsing->used_mask = 0;
     str_parsing->capacity_operands = 4;
     str_parsing->operands = (int**)malloc(str_parsing->capacity_operands * sizeof(int*));
     str_parsing->op_lengths = (int*)malloc(str_parsing->capacity_operands * sizeof(int));
@@ -239,14 +240,14 @@ int recursive(str_pars* p, int letter_index) {
     int current_letter = p->unique_letters[letter_index];
 
     for (int digit = 0; digit <= 9; digit++) {
-        if (p->used_digits[digit] == 1) {
+        if (p->used_mask & (1 << digit)) {
             continue;
         }
         if (digit == 0 && p->is_leading[current_letter] == 1) {
             continue;
         }
         p->letter_values[current_letter] = digit;
-        p->used_digits[digit] = 1;
+        p->used_mask |= (1 << digit);
 
         
         if (check_columns(p)) {
@@ -256,7 +257,7 @@ int recursive(str_pars* p, int letter_index) {
         }
 
         p->letter_values[current_letter] = -1;
-        p->used_digits[digit] = 0;
+        p->used_mask &= ~(1 << digit);
     }
     return 0;
 }

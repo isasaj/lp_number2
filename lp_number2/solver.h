@@ -12,7 +12,7 @@ typedef struct {
     int result_length;
     int is_leading[26];
     int letter_values[26];
-    int used_digits[10];
+    unsigned int used_mask;
     int unique_letters[10];
     int num_letters;
 } str_pars;
