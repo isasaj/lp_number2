@@ -102,6 +102,9 @@ int parse(char* string, str_pars* str_parsing, int len) {
 }
 
 
+
+
+
 int check(str_pars* p) {
     long long left_sum = 0;
     long long current_num = 0;
@@ -121,26 +124,85 @@ int check(str_pars* p) {
     return left_sum == right_sum;
 }
 
+
+int check_columns(str_pars* p) {
+    int carry = 0;
+    int max_len = p->result_length;
+
+    for (int col = 0; col < max_len; col++) {
+        int sum = carry;
+        int all_known = 1;
+
+        for (int i = 0; i < p->num_operands; i++) {
+ 
+            if (p->op_lengths[i] > col) {
+                int letter = p->operands[i][p->op_lengths[i] - 1 - col];
+                int val = p->letter_values[letter];
+                if (val == -1) {
+                    all_known = 0;
+                    break;
+                }
+                sum += val;
+            }
+        }
+
+        
+        if (p->result_length > col) {
+            int letter = p->result[p->result_length - 1 - col];
+            int val = p->letter_values[letter];
+            if (val == -1) {
+                all_known = 0;
+            }
+
+            
+            if (all_known) {
+                if (sum % 10 != val) {
+                    return 0;
+                }
+            }
+        }
+        else {
+            if (all_known && sum % 10 != 0) {
+                return 0;
+            }
+        }
+
+    
+        if (!all_known) {
+            break;
+        }
+
+        carry = sum / 10;
+    }
+    return 1;
+}
+
+
+
 int recursive(str_pars* p, int letter_index) {
-   
     if (letter_index == p->num_letters) {
-        return check(p);
+        return 1;
     }
 
     int current_letter = p->unique_letters[letter_index];
 
     for (int digit = 0; digit <= 9; digit++) {
-        if (p->used_digits[digit] == 1) continue;
-        if (digit == 0 && p->is_leading[current_letter] == 1) continue;
-
+        if (p->used_digits[digit] == 1) {
+            continue;
+        }
+        if (digit == 0 && p->is_leading[current_letter] == 1) {
+            continue;
+        }
         p->letter_values[current_letter] = digit;
         p->used_digits[digit] = 1;
 
-        if (recursive(p, letter_index + 1)) {
-            return 1;
+        
+        if (check_columns(p)) {
+            if (recursive(p, letter_index + 1)) {
+                return 1;
+            }
         }
 
-       
         p->letter_values[current_letter] = -1;
         p->used_digits[digit] = 0;
     }
