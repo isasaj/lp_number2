@@ -6,6 +6,57 @@
 #include <stdlib.h>
 
 
+void sort_unique_letters(str_pars* p) {
+    for (int i = 0; i < p->num_letters - 1; i++) {
+        for (int j = 0; j < p->num_letters - i - 1; j++) {
+            int letter_a = p->unique_letters[j];
+            int letter_b = p->unique_letters[j + 1];
+            int power_a = 100;
+            int power_b = 100;
+
+
+            for (int k = 0; k < p->num_operands; k++) {
+                for (int m = 0; m < p->op_lengths[k]; m++) {
+                    if (p->operands[k][m] == letter_a) {
+                        int pwr = p->op_lengths[k] - 1 - m; 
+                        if (pwr < power_a) power_a = pwr;
+                    }
+                }
+            }
+            for (int m = 0; m < p->result_length; m++) {
+                if (p->result[m] == letter_a) {
+                    int pwr = p->result_length - 1 - m;
+                    if (pwr < power_a) power_a = pwr;
+                }
+            }
+
+
+            for (int k = 0; k < p->num_operands; k++) {
+                for (int m = 0; m < p->op_lengths[k]; m++) {
+                    if (p->operands[k][m] == letter_b) {
+                        int pwr = p->op_lengths[k] - 1 - m;
+
+                        if (pwr < power_b) power_b = pwr;
+                    }
+                }
+            }
+            for (int m = 0; m < p->result_length; m++) {
+                if (p->result[m] == letter_b) {
+                    int pwr = p->result_length - 1 - m;
+                    if (pwr < power_b) power_b = pwr;
+
+                }
+            }
+            if (power_a > power_b) {
+                int temp = p->unique_letters[j];
+                p->unique_letters[j] = p->unique_letters[j + 1];
+                p->unique_letters[j + 1] = temp;
+            }
+        }
+    }
+}
+
+
 void add_word(str_pars* struct_el, char* temp, int len) {
     if (struct_el->num_operands >= struct_el->capacity_operands) {
         struct_el->capacity_operands *= 2;
@@ -98,6 +149,7 @@ int parse(char* string, str_pars* str_parsing, int len) {
             }
         }
     }
+    sort_unique_letters(str_parsing);
     return 1;
 }
 
